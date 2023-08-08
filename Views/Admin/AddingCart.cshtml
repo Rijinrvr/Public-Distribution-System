@@ -1,0 +1,38 @@
+﻿@model PersonDistributionSystem.Models.CartModel
+@*@model PersonDistributionSystem.Models.ProductsModel*@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Purchase</h1>
+        <form method="post">
+            @Html.HiddenFor(model => model.Id)
+
+            <div>
+                <label for="itemName">Item Name:</label>
+                @Html.TextBoxFor(model => model.Item, new { @readonly = "readonly", required = "required" })
+            </div>
+            <br />
+            <div>
+                <label for="itemPrice">Price:</label>
+                @Html.TextBoxFor(model => model.Price, new { type = "number", @readonly = "readonly", step = "0.01", required = "required" })
+            </div>
+            <br />
+            <div>
+                <label for="itemQuantity">Quantity:</label>
+                @Html.TextBoxFor(model => model.Quantity, new { type = "number", id = "itemQuantity", required = "required", @min = "1", value = "1" })
+            </div>
+
+            <br />
+
+            <br />
+            <button type="submit">Add to cart</button>
+        </form>
+    </div>
+ 
+</body>
+</html>

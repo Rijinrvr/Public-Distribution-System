@@ -1,0 +1,227 @@
+﻿
+
+@using System.Data;
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Database Table Contents</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e0e0e0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+            .action-buttons a {
+                padding: 5px 10px;
+                background-color: #007bff;
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 3px;
+            }
+
+                .action-buttons a:hover {
+                    background-color: #0056b3;
+                    color: #ffffff;
+                }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+
+        .buy-button {
+            padding: 5px 10px;
+            background-color: #4caf50;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 3px;
+            border: none;
+            cursor: pointer;
+            margin-right: 5px;
+            font-weight: bold;
+        }
+
+        .decrement-button {
+            padding: 5px 10px;
+            background-color: #f44336;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 3px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .buy-count {
+            padding: 5px 10px;
+            background-color: #f2f2f2;
+            border: 1px solid #dddddd;
+            border-radius: 3px;
+            display: inline-block;
+            min-width: 30px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .cart {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            border-radius: 3px;
+            text-decoration: none;
+        }
+
+            .cart:hover {
+                background-color: #0056b3;
+                color: #ffffff;
+                text-decoration: none;
+            }
+
+        .cart-button {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 3px;
+        }
+
+            .cart-button:hover {
+                background-color: #0056b3;
+                color: #ffffff;
+                text-decoration: none;
+            }
+
+        .logout-button {
+            padding: 5px 10px;
+            background-color: #dc3545;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 3px;
+        }
+
+            .logout-button:hover {
+                background-color: #c82333;
+                color: #ffffff;
+                text-decoration: none;
+            }
+
+
+       
+    </style>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.1/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="header-container">
+        <h1>Welcome to my shop</h1>
+        <div class="action-buttons">
+            <a href="@Url.Action("Mycart")" class="cart-button">My cart</a>
+            <a href="@Url.Action("Logout")" class="logout-button">Logout</a>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+
+                <th>Item</th>
+                <th>Availability</th>
+                <th>Price</th>
+                <th>Actions</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Rows.Count; i++)
+            {
+                <tr>
+                    <td>@Model.Rows[i][1]</td>
+                    <td>
+                        @if ((int)Model.Rows[i][2] <= 20)
+                        {
+                            if ((int)Model.Rows[i][2] == 20)
+                            {
+                                <text>
+                                    <span style="color: orange;">Only 20 stocks left</span>
+                                </text>
+                            }
+                            else if ((int)Model.Rows[i][2] == 0)
+                            {
+                                <span style="color: red;">Out of stock</span>
+                            }
+                            else
+                            {
+                                <text>
+                                    <span style="color: red;">Hurry up only have @Model.Rows[i][2] stocks</span>
+                                </text>
+                            }
+                        }
+                        else
+                        {
+                            <span style="color: green;">In stock</span>
+                        }
+                    </td>
+                    <td>@Model.Rows[i][3]</td>
+
+                    <td>
+                        <a class="cart" href="@Url.Action("AddingCart", new {id = Model.Rows[i][0]})">
+                            Add to cart
+                        </a>
+</tr>
+            }
+</table>
+
+    <h2>@Html.ViewData["Message"]</h2>
+   
+
+</body>
+</html>
