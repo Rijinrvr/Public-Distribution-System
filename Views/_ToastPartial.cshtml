@@ -1,0 +1,29 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>_ToastPartial</title>
+</head>
+<body>
+    <div>
+
+        @Html.Partial("_ToastPartial", new PersonDistributionSystem.Models.ViewModal())
+
+
+        @if (Model.Success)
+        {
+            @:toastr.success("@Model.Message");
+        }
+        else if (!Model.Success && !String.IsNullOrWhiteSpace(Model.Message))
+        {
+            @:toastr.error("@Model.Message");
+        }
+    </div>
+</body>
+</html>

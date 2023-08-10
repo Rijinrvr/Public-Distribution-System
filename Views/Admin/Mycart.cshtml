@@ -8,7 +8,9 @@
 <html>
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="styles.css"> 
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
         .buy-button {
             padding: 5px 10px;
@@ -45,20 +47,67 @@
                         <td>@Model.Rows[i][3]</td>
                         <td>@Model.Rows[i][4]</td>
                         <td class="action-buttons">
-                            <a href="@Url.Action("RemoveCart", new { id = Model.Rows[i][0] })" class="btn btn-primary edit-button remove-button" data-id="@Model.Rows[i][0]" onclick="return confirm('Are you sure you want to remove this item from your cart?')">Remove</a>
+                            <a href="@Url.Action("RemoveCart", new { id = Model.Rows[i][0] })" class="btn btn-primary edit-button remove-button" data-id="@Model.Rows[i][0]" onclick="confirmRemove(event)">Remove</a>
+
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
-        <a href="@Url.Action("CleanCart")" class="buy-button" id="buy-now-button" onclick="return confirm('Are you sure you want to proceed with the purchase?')">Buy Now</a>
+        <a href="@Url.Action("CleanCart")" class="buy-button" id="buy-now-button" onclick="confirmBuy(event)">Buy Now</a>
+
 
 
         <a href="@Url.Action("Userview")" class="buy-button">Home</a>
     </div>
-    <h1>@Html.ViewData["Message"]</h1>
 
-   
+
+    <script>
+        function confirmRemove(event) {
+            event.preventDefault();
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't remove this product!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, remove it!'
+            }).then((result) =>
+            {
+                if (result.isConfirmed)
+                {
+                    window.location.href = event.target.href;
+                }
+            });
+        }
+
+       
+            function confirmBuy(event) {
+                event.preventDefault(); 
+
+                Swal.fire({
+                    title: 'Confirm Purchase',
+                    text: 'Are you sure you want to proceed with the purchase?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, proceed!'
+                }).then((result) =>
+                {
+                    if (result.isConfirmed)
+                    {
+                        window.location.href = event.target.href;
+                    }
+                });
+            }
+    
+
+
+    </script>
+
 
 </body>
 </html>

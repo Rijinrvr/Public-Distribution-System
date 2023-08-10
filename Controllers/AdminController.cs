@@ -11,6 +11,7 @@ using System.Drawing;
 using System.Web.DynamicData;
 using System.Diagnostics;
 using System.Runtime.Remoting.Messaging;
+using System.Web.Security;
 
 namespace PersonDistributionSystem.Controllers
 {
@@ -128,15 +129,20 @@ namespace PersonDistributionSystem.Controllers
                     command.Parameters.AddWithValue("@Quantity", product.Quantity);
                     command.Parameters.AddWithValue("@Price", product.Price);
                     int rowsAffected = command.ExecuteNonQuery();
+
                 }
             }
+            TempData["SuccessMessage"] = "Product edited successfully.";
             return RedirectToAction("Details");
         }
 
+        [AllowAnonymous]
         public ActionResult Signup()
         {
             return View(new LoginModel());
         }
+
+        [AllowAnonymous]
 
         [HttpPost]
         public ActionResult Signup(LoginModel admin)
@@ -172,7 +178,7 @@ namespace PersonDistributionSystem.Controllers
                 }
 
                 if (message)
-                {
+                { 
                     TempData["Message"] = "Username already exists.";
                     return RedirectToAction("Signup");
                 }
@@ -181,12 +187,13 @@ namespace PersonDistributionSystem.Controllers
             return RedirectToAction("Login");
         }
 
-
+        [AllowAnonymous]
         public ActionResult Login()
         {
             return View();
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public ActionResult Login(LoginModel admin)
         {
@@ -200,18 +207,18 @@ namespace PersonDistributionSystem.Controllers
                 string userName = admin.Username;
                 command.Parameters.AddWithValue("@Password", admin.Password);
 
-                SqlParameter IsAdminOutput = new SqlParameter("@IsAdminOutput", SqlDbType.NVarChar, 10);
-                IsAdminOutput.Direction = ParameterDirection.Output;
-                command.Parameters.Add(IsAdminOutput);
+                SqlParameter isAdminOutput = new SqlParameter("@IsAdminOutput", SqlDbType.NVarChar, 10);
+                isAdminOutput.Direction = ParameterDirection.Output;
+                command.Parameters.Add(isAdminOutput);
 
-                SqlParameter IsAuthenticOutput = new SqlParameter("@IsAuthenticOutput", SqlDbType.Bit);
-                IsAuthenticOutput.Direction = ParameterDirection.Output;
-                command.Parameters.Add(IsAuthenticOutput);
+                SqlParameter isAuthenticOutput = new SqlParameter("@IsAuthenticOutput", SqlDbType.Bit);
+                isAuthenticOutput.Direction = ParameterDirection.Output;
+                command.Parameters.Add(isAuthenticOutput);
                 sqlconnection.Open();
                 command.ExecuteNonQuery();
 
-                bool isAuthentic = (bool)IsAuthenticOutput.Value;
-                string isAdmin = IsAdminOutput.Value.ToString();
+                bool isAuthentic = (bool)isAuthenticOutput.Value;
+                string isAdmin = isAdminOutput.Value.ToString();
 
                 if (isAuthentic)
                 {
@@ -219,10 +226,13 @@ namespace PersonDistributionSystem.Controllers
 
                     if (isAdmin == "Admin")
                     {
+                        FormsAuthentication.SetAuthCookie(admin.Username, false);
                         return RedirectToAction("Details");
                     }
                     else if (isAdmin == "NotAdmin")
                     {
+                        FormsAuthentication.SetAuthCookie(admin.Username, false);
+                        TempData["Message"] = "Login sucessfully";
                         return RedirectToAction("Userview");
                     }
                 }
@@ -232,26 +242,56 @@ namespace PersonDistributionSystem.Controllers
         }
         public ActionResult Logout()
         {
+            FormsAuthentication.SignOut();
             return RedirectToAction("Login");
         }
 
-        public ActionResult Userview()
+        public ActionResult Userview(string query)
         {
-            connection();
-            using (sqlconnection)
+            if (!string.IsNullOrEmpty(query))
             {
-                SqlCommand command = new SqlCommand("ViewProducts", sqlconnection);
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@Action", "View");
-                sqlconnection.Open();
-                command.CommandType = CommandType.StoredProcedure;
-                SqlDataReader reader = command.ExecuteReader();
-                DataTable datatable = new DataTable();
-                datatable.Load(reader);
+                connection();
+                using (sqlconnection)
+                {
+                    SqlCommand command = new SqlCommand("ViewProducts", sqlconnection);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@Action", "View");
+                    command.Parameters.AddWithValue("@SearchKey", query);
 
-                return View(datatable);
+                    sqlconnection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    DataTable datatable = new DataTable();
+                    datatable.Load(reader);
+
+                    sqlconnection.Close();
+
+                    return View(datatable);
+                }
             }
+            else
+            {
+                connection();
+                using (sqlconnection)
+                {
+                    SqlCommand command = new SqlCommand("ViewProducts", sqlconnection);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@Action", "View");
+                    command.Parameters.AddWithValue("@SearchKey", query);
+
+                    sqlconnection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    DataTable datatable = new DataTable();
+                    datatable.Load(reader);
+
+                    sqlconnection.Close();
+
+                    return View(datatable);
+                }
+                return View();
+            }
+           
         }
+
 
         public ActionResult Mycart()
         {
@@ -302,6 +342,7 @@ namespace PersonDistributionSystem.Controllers
         public ActionResult AddingCart(CartModel product, int id)
         {
             var userName = (string)Session["userName"];
+            ViewModal viewModal = new ViewModal();
 
             connection();
             using (sqlconnection)
@@ -328,13 +369,14 @@ namespace PersonDistributionSystem.Controllers
 
                 if (quantityMessage == "Updated")
                 {
-                    ViewData["Message"] = "The Quantity is greater than our stock";
+                    viewModal.Success = false;
+                    viewModal.Message = "The Quantity is greater than our stock";
                 }
                 else
                 {
-                    ViewData["Message"] = "Product added to your cart successfully";
+                    viewModal.Success = true;
+                    viewModal.Message = "Product added to your cart successfully";                  
                 }
-
                 return RedirectToAction("Userview");
             }
         }
@@ -375,6 +417,44 @@ namespace PersonDistributionSystem.Controllers
 
             }
         }
+
+        //public ActionResult Search(string query)
+        //{
+        //    connection();
+        //    using (sqlconnection)
+        //    {
+                
+        //        SqlCommand command = new SqlCommand("ViewProducts", sqlconnection);
+        //        command.CommandType = CommandType.StoredProcedure;
+        //        command.Parameters.AddWithValue("@Action", "Search");
+        //        command.Parameters.AddWithValue("@Item", query);
+
+        //        SqlParameter isExists = new SqlParameter("@ReturnMessage", SqlDbType.Bit);
+        //        isExists.Direction = ParameterDirection.Output;
+        //        command.Parameters.Add(isExists);
+
+        //        SqlParameter returningId = new SqlParameter("@ReturnId", SqlDbType.Int); 
+        //        returningId.Direction = ParameterDirection.Output;
+        //        command.Parameters.Add(returningId);
+
+        //        sqlconnection.Open();
+        //        command.ExecuteNonQuery();
+
+        //        bool isExist = (bool)isExists.Value;
+        //        int returnId = (int)returningId.Value;
+
+        //        if (isExist)
+        //        {
+        //            ViewBag["Message"] = "Please enter a valid prouct name";
+        //        }
+        //        else
+        //        { 
+        //            ViewBag.ReturnId = returnId;                                        
+
+        //        }
+        //    }
+        //    return RedirectToAction("Userview");
+        //}
 
     }
 

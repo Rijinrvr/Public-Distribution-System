@@ -6,6 +6,7 @@
     Layout = null;
 }
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -162,10 +163,28 @@
 </head>
 <body>
     <div class="header-container">
-        <h1>Welcome to my shop</h1>
-        <div class="action-buttons">
-            <a href="@Url.Action("Mycart")" class="cart-button">My cart</a>
-            <a href="@Url.Action("Logout")" class="logout-button">Logout</a>
+        <div class="row">
+            <div class="col text-center">
+                <h1 style="margin-top: 0; color: blue; ">Public Distribution System</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <form method="GET" action="@Url.Action("Userview")">
+                    <div class="input-group" style="margin-top: 10px;">
+                        <input type="search" name="query" class="form-control rounded" placeholder="Enter the product name or price" aria-label="Search" aria-describedby="search-addon" style="width:700px" />
+                        <button type="submit" class="btn btn-outline-primary">Search</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="action-buttons">
+                    <a href="@Url.Action("Mycart")" class="cart-button">My cart</a>
+                    <a href="@Url.Action("Logout")" class="logout-button">Logout</a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -181,6 +200,7 @@
             </tr>
         </thead>
         <tbody>
+
             @for (int i = 0; i < Model.Rows.Count; i++)
             {
                 <tr>
@@ -211,17 +231,25 @@
                         }
                     </td>
                     <td>@Model.Rows[i][3]</td>
-
                     <td>
-                        <a class="cart" href="@Url.Action("AddingCart", new {id = Model.Rows[i][0]})">
+                        <a class="cart" href="@Url.Action("AddingCart", new { id = Model.Rows[i][0] })">
                             Add to cart
                         </a>
-</tr>
-            }
-</table>
+                    </td>
+                </tr>
 
-    <h2>@Html.ViewData["Message"]</h2>
-   
+             }
 
+    </table>
+
+    <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: '@TempData["Message"]',
+                showConfirmButton: false,
+                timer: 2000 
+            });
+    </script>
 </body>
 </html>

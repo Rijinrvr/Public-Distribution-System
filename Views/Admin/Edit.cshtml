@@ -4,31 +4,52 @@
 <html>
 <head>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 <body>
     <div class="container">
         <h1>Edit Item</h1>
-        <form method="post">
-            @Html.HiddenFor(model => model.Id)
+        <div class="container">
 
-            <div>
-                <label for="itemName">Item Name:</label>
-                @Html.TextBoxFor(model => model.Item, new { id = "itemName", required = "required" })
-            </div>
-            <br />
-            <div>
-                <label for="itemQuantity">Quantity:</label>
-                @Html.TextBoxFor(model => model.Quantity, new { id = "itemQuantity", required = "required" })
-            </div>
-            <br />
-            <div>
-                <label for="itemPrice">Price:</label>
-                @Html.TextBoxFor(model => model.Price, new { id = "itemPrice", type = "number", step = "0.01", required = "required" })
-            </div>
-            <br />
-            <button type="submit">Save</button>
-        </form>
-    </div>
-    <script src="script.js"></script>
+            <form method="post">
+                @Html.HiddenFor(model => model.Id)
+
+                <div>
+                    <label for="itemName">Item Name:</label>
+                    @Html.TextBoxFor(model => model.Item, new { id = "itemName", required = "required" })
+                </div>
+                <br />
+                <div>
+                    <label for="itemQuantity">Quantity:</label>
+                    @Html.TextBoxFor(model => model.Quantity, new { id = "itemQuantity", required = "required" })
+                </div>
+                <br />
+                <div>
+                    <label for="itemPrice">Price:</label>
+                    @Html.TextBoxFor(model => model.Price, new { id = "itemPrice", type = "number", step = "0.01", required = "required" })
+                </div>
+                <br />
+                <button type="submit" onclick="confirmBuy(event)">Save</button>
+            </form>
+        </div>
+        <script src="script.js"></script>
+
+        <script>
+            function confirmBuy(event) {
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <text>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: '@TempData["SuccessMessage"]',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+                </text>
+            }
+            }
+        </script>
 </body>
 </html>
